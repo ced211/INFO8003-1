@@ -1,10 +1,8 @@
 import sys
 import numpy as np
 
-
 def percent_round_int(x, percent):
     return np.round(percent * x).astype(int)
-
 
 class MyBar():
 
