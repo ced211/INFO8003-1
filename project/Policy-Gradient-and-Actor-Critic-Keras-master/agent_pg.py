@@ -126,9 +126,10 @@ class Agent_PG(Agent):
 
                 # Store current episode into training batch
                 tr_x.append(ep_x)
-                tr_y.append(ep_dlogp)
+                tr_y.append(ep_dlogp) #ep_dlogp = - discount reward * action taken ponderate by proba.
                 frames, dlogps, drs =[], [], []
                 if ep_number % batch_size == 0:
+                    #prob action = log(policy(state|action)) ; tr_y = log(R)
                     input_tr_y = prob_actions + self.learning_rate * np.squeeze(np.vstack(tr_y))
                     self.model.train_on_batch(np.vstack(tr_x).reshape(-1,80,80,1), input_tr_y)
                     tr_x,tr_y,prob_actions = [],[],[]

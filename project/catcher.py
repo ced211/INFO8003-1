@@ -252,9 +252,9 @@ class ContinuousCatcher():
         done = False
 
         # Clip the absolute force to the maximum bar speed
-        # Equivalent to : max(min(act[0], self.bar_speed),
+        # Equivalent to : max(min(act, self.bar_speed),
         #                     -self.bar_speed)    
-        self.dx = np.clip(act[0], -self.bar_speed, self.bar_speed)
+        self.dx = np.clip(act, -self.bar_speed, self.bar_speed)
 
         # Grant reward related to tick and
         # whether fruit has been caught/missed
@@ -289,3 +289,5 @@ class ContinuousCatcher():
         """
         return np.asarray([self.bar.center[0], self.bar.vel,
                            self.fruit.center[0], self.fruit.center[1]])
+
+

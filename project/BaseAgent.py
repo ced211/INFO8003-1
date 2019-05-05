@@ -1,19 +1,10 @@
+import math
 class BaseAgent:
-    def __init__(self):
-        """
-        Init the agent with the necessary values
-        """
-        self.name = 'BaseAgent'
 
-    def init(self, world_infos=None):
-        """
-        Initiliaze the agent from world information's
-
-        :param world_info: array-like as [window_size, fruit_size, bar_size]
-                            where each entry is a pair of sizes
-        """
-        pass
-
+    def __init__(self,env,name="BaseAgent"):
+        self.env=env
+        self.name = name
+    
     def step(self, state):
         """
         Takes one step based on the current state of the game
@@ -22,9 +13,23 @@ class BaseAgent:
 
         :return: The action to take (a single value left/right)
         """
-        bar_x = state[0]
-        fruit_x = state[2]
+        raise NotImplementedError("subclass should implement this")
 
-        action = fruit_x - bar_x
+    def play(self,max_step=math.inf):
+        """Play until terminal state or until taking max_step action, return the history
 
-        return action
+        The history is a list of tuple: (state,action,reward,next_state)
+        """
+
+        print("Agent " + self.name + " is playing.")
+        self.env.reset()
+        done = False
+        history = []
+        while not done and max_step > 0:
+            cur_state = self.env.observe()
+            action = self.step(cur_state)
+            next_state,reward,done = self.env.step(action)
+            history.append((cur_state,action,reward,next_state))
+            max_step -= 1
+        print("Agent " + self.name + " has played.")    
+        return history

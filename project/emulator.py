@@ -120,8 +120,9 @@ class Emulator:
 
     def run(self):
         """
-        Emulate the catcher game
+        Emulate the catcher game and return the history
         """
+        history = []
         action = [0]
         state = self.game.observe()
         game_over = False
@@ -141,8 +142,8 @@ class Emulator:
                 self.user_left = 0
             else:
                 action[0] = self.agent.step(state)
-            state, reward, game_over = self.game.step(action)
-
+            new_state, reward, game_over = self.game.step(action)
+            history.append((state,action[0],reward,new_state))
             total_reward += (np.power(gamma, counter) * reward)
             if fps_counter % self.game.fps == 0:
                 counter += 1
@@ -160,11 +161,12 @@ class Emulator:
             if game_over:
                 print('You loose!')
                 self.running = False
-
+            state = new_state
+        
         print("Time played:", (pygame.time.get_ticks() - start_time) / 1000.0)
 
         pygame.display.quit()
-        pass
+        return history
 
     @staticmethod
     def emulate(agent, show_display=True, screen_size=None, color_style=None):
