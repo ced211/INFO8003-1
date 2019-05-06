@@ -46,6 +46,20 @@ class Display:
 		self.bar_size = self.game.bar.size
 		self.fruit_size = self.game.fruit.size
 		
+	def process_event(self):
+		"""
+		Process the events of pygame (allows to quit)
+		Get the keyboard inputs when played with a player
+		"""
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.display.quit()
+			elif event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_LEFT:
+					self.user_left += 5
+				elif event.key == pygame.K_RIGHT:
+					self.user_right += 5
+		
 	def draw(self, bar_center, fruit_center, reward_sum, lives):
 		"""
 		Draw to the screen
@@ -54,7 +68,7 @@ class Display:
 		reward_sum: The total reward
 		lives: lives of the game to draw
 		"""
-
+		# clock = pygame.time.Clock()
 		self.surface.fill(self.color_style.background_color)  # Draw background
 
 		fruit_center = fruit_center
@@ -84,3 +98,8 @@ class Display:
 
 		pygame.display.flip()
 		pass
+		self.process_event()
+
+		# # --- Maintain fps
+		# clock.tick(self.game.fps)
+		
