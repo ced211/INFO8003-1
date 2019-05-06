@@ -110,10 +110,11 @@ training_op_critic = tf.train.AdamOptimizer(
 ################################################################
 # Training loop
 gamma = 0.95  # discount factor
-num_episodes = 300
-
+num_episodes = 3000000
+counter = 0
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
+    saver = tf.train.Saver()
     episode_history = []
     for episode in range(num_episodes):
         # receive initial state from E
@@ -156,8 +157,14 @@ with tf.Session() as sess:
 
             state = next_state
             # end while
-        episode_history.append(reward_total)
-        print("Episode: {}, Number of Steps : {}, Cumulative reward: {:0.2f}".format(
-            episode, steps, reward_total))
 
-        print("Mean cumulative reward:{:0.2f}".format(np.mean(episode_history)))
+        if counter == 20:
+            save_path = saver.save(sess, "Models/my_test_model")
+            counter = 0
+        else:
+            counter += 1
+
+        episode_history.append(reward_total)
+        print("Episode: {}, Number of Steps : {}, Cumulative reward: {}, Mean cumulative reward: {:0.2f}".format(
+            episode, steps, reward_total, np.mean(episode_history)))
+
