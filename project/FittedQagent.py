@@ -4,6 +4,7 @@ import numpy as np
 from RandomAgent import RandomAgent
 from catcher import ContinuousCatcher
 from emulator import Emulator
+from joblib import dump, load
 import random
 
 class QAgent(BaseAgent):
@@ -13,7 +14,7 @@ class QAgent(BaseAgent):
     discrete_step=0.1
 
     def __init__(self,env= ContinuousCatcher(),discrete_step=0.1 ,Fmax = 5,gamma = 0.99,estimator=ExtraTreesRegressor(
-        n_estimators=1, max_depth=None, min_samples_split=2, random_state=1997, n_jobs=10)):
+        n_estimators=1, max_depth=None, min_samples_split=2, random_state=1997, n_jobs=1)):
         self.history = []        
         self.Fmax = Fmax
         self.estimator = estimator
@@ -74,8 +75,8 @@ class QAgent(BaseAgent):
         print("fitting")
         self.estimator.fit(X, Y)
         for j in range(n):
-            for i in range(len(Y)):
-                value = self.value(X[i,:4])
+            for i in range(len(Y)-1):
+                value = self.value(X[i+1,:4])
                 Y[i] = rewards[i] + self.gamma * value
             self.estimator.fit(X,Y)
             print("fitted  " + str(j) + " Q function")
@@ -84,14 +85,16 @@ if __name__ == "__main__":
     episode = 0
     agent = QAgent()
     random_agent = RandomAgent()
-    while episode < 10000:
+    while episode < 1000:
         history = random_agent.play()
         agent.history.extend(history)
         episode += 1
-        if episode % 1000 == 0:
+        if episode % 10 == 0:
             print("played: " + str(episode) + " episode")
-            agent.train(n=80)
+            agent.train(n=20)
+            dump(agent, 'FQIagent_' + str(episode) + '.joblib') 
             Emulator.emulate(agent)
+            print("number of tree:" + str(len(agent.estimator)))
             np.save("FQI_history_episode_" + str(episode),np.asarray(agent.history))
 
 

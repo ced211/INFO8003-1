@@ -3,7 +3,7 @@ import pygame
 
 import BaseAgent
 import catcher
-
+#from RandomAgent import RandomAgent
 
 class DefaultColorStyle:
     """
@@ -61,8 +61,8 @@ class Emulator:
         self.fruit_size = self.game.fruit.size
 
         self.agent = agent
-        if self.agent is not None:
-            self.agent.init([self.screen_size, self.fruit_size, self.bar_size])
+        #if self.agent is not None:
+        #    self.agent.init([self.screen_size, self.fruit_size, self.bar_size])
 
     def process_event(self):
         """
@@ -182,6 +182,6 @@ class Emulator:
                  color_style=color_style).run()
 
 
-if __name__ == "__main__":
-    Emulator.emulate(BaseAgent.BaseAgent())
-    # Emulator(agent=BaseAgent.BaseAgent()).run()
+#if __name__ == "__main__":
+    #Emulator.emulate(RandomAgent())
+    #Emulator(agent=RandomAgent()).run()

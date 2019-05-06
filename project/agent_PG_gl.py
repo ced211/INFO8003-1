@@ -20,9 +20,9 @@ class Agent:
 			self.model = load_model(model_path)
 		else:
 			# give a learning rate 
-			self.learning_rate  = 0.5
+			self.learning_rate  = 0.001
 			# linear model
-			w_bar_center, w_bar_vel, w_fruit_center0, w_fruit_center1 = 0, 0, 0, 0
+			w_bar_center, w_bar_vel, w_fruit_center0, w_fruit_center1 = -1, 0, 1, 0
 			self.theta = [w_bar_center, w_bar_vel, w_fruit_center0, w_fruit_center1]
 			self.std = 1
 		self.display = display
@@ -46,23 +46,27 @@ class Agent:
 		action = [0]
 		previous_observation = self.env.reset()        
 		# Training progress
+		time = 0		
 		while episode_number != 1000:
+
 			# create dataset
 			# give the mean and action given an obervation.
-			mean, action[0] = self.step(previous_observation)
+			mean, action = self.step(previous_observation)
 			# give the observation and reward given an action.
 			# print(action)
 			observation, reward, done = self.env.step(action)
-			reward_sum += reward
+			reward_sum += (reward * self.env.gamma() ** time)
 			episode_state.append(previous_observation)
-			episode_action.append(action[0])
+			episode_action.append(action)
 			episode_mean.append(mean)
 			previous_observation = observation
 			if self.display:
 				
 				self.Display.draw( self.env.bar.center, self.env.fruit.center, reward_sum, self.env.lives)
 			# check if the episode of the game end.
-			if done:
+			time += 1
+			if done or time > 10000:
+				time = 0
 				# compute the sum of rewards
 				episode_number +=1
 				# compute the difference between the mean and action

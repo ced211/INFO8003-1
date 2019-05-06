@@ -173,6 +173,7 @@ class ContinuousCatcher():
         - `dt`: Frame per second (used as integration constant)
 
         """
+        self.time_played=0
         self.width = width
         self.height = height
         self.dt = dt
@@ -217,6 +218,7 @@ class ContinuousCatcher():
         self.lives = self.init_lives
         self.fruit_reset()
         self.bar_reset()
+        self.time_played = 0
         return self.observe()
 
     def _collide_fruit(self):
@@ -250,7 +252,7 @@ class ContinuousCatcher():
                     act == 0 do nothing
         """
         done = False
-
+        self.time_played += 1
         # Clip the absolute force to the maximum bar speed
         # Equivalent to : max(min(act, self.bar_speed),
         #                     -self.bar_speed)    

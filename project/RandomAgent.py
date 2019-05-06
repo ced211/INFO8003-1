@@ -12,5 +12,5 @@ class RandomAgent(BaseAgent):
         self.name="Random Agent"
     
     def step(self,state):
-        return random.random() * self.Fmax
+        return (random.random()-0.5) * self.Fmax * 2
 
