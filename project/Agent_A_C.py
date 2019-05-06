@@ -86,7 +86,7 @@ def scale_state(state):  # requires input shape=(2,)
 
 # -------------------------------------------------------
 
-lr_actor = 0.002  # set learning rates
+lr_actor = 0.00002  # set learning rates
 lr_critic = 0.001
 
 # define required placeholders
@@ -160,7 +160,4 @@ with tf.Session() as sess:
         print("Episode: {}, Number of Steps : {}, Cumulative reward: {:0.2f}".format(
             episode, steps, reward_total))
 
-        if np.mean(episode_history[-100:]) > 90 and len(episode_history) >= 101:
-            print("****************Solved***************")
-            print("Mean cumulative reward over 100 episodes:{:0.2f}".format(
-                np.mean(episode_history[-100:])))
+        print("Mean cumulative reward:{:0.2f}".format(np.mean(episode_history)))
