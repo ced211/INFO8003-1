@@ -3,21 +3,24 @@ from sklearn.ensemble import ExtraTreesRegressor
 import numpy as np
 from RandomAgent import RandomAgent
 from catcher import ContinuousCatcher
+from emulator import Emulator
+import random
 
 class QAgent(BaseAgent):
     estimator = None
     Fmax =10
     gamma=0.95
-    discrete_step=100
+    discrete_step=0.1
 
-    def __init__(self,env= ContinuousCatcher(),discrete_step=100 ,Fmax = 5,gamma = 0.99,estimator=ExtraTreesRegressor(
-        n_estimators=1, max_depth=None, min_samples_split=2, random_state=1997, n_jobs=-1)):
+    def __init__(self,env= ContinuousCatcher(),discrete_step=0.1 ,Fmax = 5,gamma = 0.99,estimator=ExtraTreesRegressor(
+        n_estimators=1, max_depth=None, min_samples_split=2, random_state=1997, n_jobs=10)):
         self.history = []        
         self.Fmax = Fmax
         self.estimator = estimator
         self.gamma = gamma
         random_agent = RandomAgent(Fmax,env)
-        self.train(random_agent.play(),1)
+        history = random_agent.play()
+        self.history.extend(history)
         self.env=env
         self.discrete_step=discrete_step
         self.name = "Fitted Q agent"
@@ -38,38 +41,59 @@ class QAgent(BaseAgent):
             prediction = self.estimator.predict(np.append(s,action).reshape(1,-1))
             if prediction > maximum:
                 maximum = prediction
-                opt_action = action
-        return opt_action    
+                opt_action = []
+            if prediction >= maximum:
+                opt_action.append(action)
 
-    def train(self,history,n):
+        return random.choice(opt_action)  
+
+    def train(self,n,history=None):
         """train the agent given the history
         The history is a list of tuple: (state,action,reward,next_state)
         state is a numpy array: [bar_center_x, bar_velocity, fruit_center_x, fruit_center_y]
         reward,action are real.
         """
-        self.history.extend(history)
-        X = []
-        Y = []
-        for h in history:
-            X.append(np.append(h[0],h[1]))
-            Y.append(h[2])       
-        X = np.asarray(X)
-        Y = np.asarray(Y)
+        if history != None:
+            self.history.extend(history)
+        if len(self.history) == 0:
+            print("Error: emtpy batch !")
+            return
+        exp_replay = min(len(self.history),100000)
+        print(exp_replay)
+        h = random.choice(self.history)
+        X = np.append(h[0],h[1])
+        Y = np.asarray(h[2])      
+        rewards = np.asarray(h[2])
+        index = np.random.choice(len(self.history),(exp_replay,))
+        for i in index:
+            h = self.history[i]
+            X = np.vstack((X,np.append(h[0],h[1])))
+            Y = np.vstack((Y,np.asarray(h[2])))     
+            rewards = np.vstack((rewards,np.asarray(h[2])))
+        Y = np.ravel(Y)
+        print("fitting")
         self.estimator.fit(X, Y)
-        for _ in range(n):
+        for j in range(n):
             for i in range(len(Y)):
-                value = self.value(history[i][3])
-                Y[i] = history[i][1] + self.gamma * value
+                value = self.value(X[i,:4])
+                Y[i] = rewards[i] + self.gamma * value
             self.estimator.fit(X,Y)
+            print("fitted  " + str(j) + " Q function")
 
 if __name__ == "__main__":
     episode = 0
     agent = QAgent()
+    random_agent = RandomAgent()
     while episode < 10000:
-        history = agent.play()
-        print("score: " + str(history[-1][2]) + " at episode " + str(episode))
-        agent.train(history,40)
+        history = random_agent.play()
+        agent.history.extend(history)
         episode += 1
+        if episode % 1000 == 0:
+            print("played: " + str(episode) + " episode")
+            agent.train(n=80)
+            Emulator.emulate(agent)
+            np.save("FQI_history_episode_" + str(episode),np.asarray(agent.history))
+
 
 
 

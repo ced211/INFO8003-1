@@ -1,9 +1,12 @@
 import math
+from emulator import Emulator
+
 class BaseAgent:
 
     def __init__(self,env,name="BaseAgent"):
         self.env=env
         self.name = name
+        self.init = None
     
     def step(self, state):
         """
