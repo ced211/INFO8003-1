@@ -1,11 +1,12 @@
 import sys
 import numpy as np
 
+
 def percent_round_int(x, percent):
     return np.round(percent * x).astype(int)
 
-class MyBar():
 
+class MyBar():
     """
         Wrap the parameters and the dynamics related
         to the bar the agent interacts with.
@@ -102,7 +103,7 @@ class MyFruit():
 
         self.grid_width = grid_width
         self.grid_height = grid_height
-        
+
         # Force to get a self.center (valid)
         self.reset()
 
@@ -142,7 +143,7 @@ class MyFruit():
             according to ranges defined by inner variables.
         """
         a, b = np.random.random((2,))
-        x = np.floor((a * (self.grid_width - self.size[0])) + self.size[0] / 2.0) 
+        x = np.floor((a * (self.grid_width - self.size[0])) + self.size[0] / 2.0)
         y = np.floor(b * ((self.grid_height - self.size[1]) / 2.0))
 
         self.center = (x, -1 * y)
@@ -173,7 +174,6 @@ class ContinuousCatcher():
         - `dt`: Frame per second (used as integration constant)
 
         """
-        self.time_played=0
         self.width = width
         self.height = height
         self.dt = dt
@@ -212,19 +212,18 @@ class ContinuousCatcher():
     def reset(self):
         """
             Resets the game back to its initial state
-            
+
             :return The observed state of the game
         """
         self.lives = self.init_lives
         self.fruit_reset()
         self.bar_reset()
-        self.time_played = 0
         return self.observe()
 
     def _collide_fruit(self):
         """
             Determines whether the bar hits the fruit
-            
+
             :return True if the bar hits the fruit,
                     False otherwise
         """
@@ -245,18 +244,18 @@ class ContinuousCatcher():
     def step(self, act):
         """
             Update the game with respect to its dynamics
-            
+
             :param act array-like with only one dimension
                     act < 0 push left
                     act > 0 push right
                     act == 0 do nothing
         """
         done = False
-        self.time_played += 1
+
         # Clip the absolute force to the maximum bar speed
-        # Equivalent to : max(min(act, self.bar_speed),
+        # Equivalent to : max(min(act[0], self.bar_speed),
         #                     -self.bar_speed)    
-        self.dx = np.clip(act, -self.bar_speed, self.bar_speed)
+        self.dx = np.clip(act[0], -self.bar_speed, self.bar_speed)
 
         # Grant reward related to tick and
         # whether fruit has been caught/missed
@@ -282,6 +281,12 @@ class ContinuousCatcher():
 
         return self.observe(), reward, done
 
+    def low(self):          # return the low bound of the actions values
+        return -self.bar_speed
+
+    def high(self):         # return the high bound of the actions values
+        return self.bar_speed
+
     def observe(self):
         """
             Returns the current game state
@@ -291,5 +296,3 @@ class ContinuousCatcher():
         """
         return np.asarray([self.bar.center[0], self.bar.vel,
                            self.fruit.center[0], self.fruit.center[1]])
-
-
