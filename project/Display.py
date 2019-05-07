@@ -97,7 +97,6 @@ class Display:
 		self.surface.blit(text, text_rect)
 
 		pygame.display.flip()
-		pass
 		self.process_event()
 
 		# # --- Maintain fps
