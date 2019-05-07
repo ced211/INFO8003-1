@@ -100,7 +100,7 @@ class Continuous_Agent:
 			mean, action[0] = self.step(previous_observation)
 			# give the observation and reward given an action.
 			observation, reward, done = self.env.step(action)
-			reward_sum += (reward )#* self.env.gamma() ** time)
+			reward_sum += (reward * self.env.gamma() ** time)
 			episode_state.append(previous_observation)
 			episode_action.append(action[0])
 			episode_mean.append(mean)
