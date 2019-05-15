@@ -29,13 +29,7 @@ class QAgent(BaseAgent):
         for action in self.actions:
             input.append(np.append(s,action))
         input = np.asarray(input)
-        #Work well !
-        #print("input")
-        #print(input)
-        #print("prediction")
         prediction = self.estimator.predict(input)
-        #print(prediction)       
-        #print(self.actions[np.argmax(prediction)])
         return self.actions[np.argmax(prediction)]
 
     def train(self,N,history=None):
@@ -69,40 +63,18 @@ class QAgent(BaseAgent):
 
         self.estimator.fit(X,reward)
         for n in range(N):    
-            #print(reward)
-            #print("reward")
-            #print(reward)   
-            #print("Q_input") 
-            #print(Q_input)
             predictions = self.estimator.predict(Q_input)
-            #print("prediction")
-            if predictions[0] != predictions[nb_sample]:
-                print("FIND DIFFERENT VALUE FOR DIFFERENT ACTION")
-                print(predictions[0])
-                print(predictions[nb_sample])
-                print(predictions[0])
-                print(predictions[1])
             predictions = predictions.reshape((nb_sample,len(self.actions)))
-            #print("reshaped predictions")
             print(predictions[0,:])
-            #print("max_axtion")
             max_action_index = np.argmax(predictions,axis=1)
-            #print(max_action_index)
             value = predictions[np.arange(len(predictions)),max_action_index]
-            #print("value")
-            #print(value)
             Y = np.add(reward,self.gamma*value)
-            #print("Y")
-            #print(Y)
             self.estimator.fit(X,Y)
-            #print("fitted Q " + str(n))
 
 if __name__ == "__main__":
     agent = QAgent()
     random_agent = RandomAgent()
-    agent2 = perfectAgent()
     history = random_agent.play(games=1000)
-    #history.extend(agent2.play(games=1000))
     print("training agent")
     agent.train(50,history)
     dump(agent, 'FQIagent_borned12_22' + '.joblib') 
